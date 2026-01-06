@@ -14,7 +14,7 @@ apt update -y
 # Docker
 # -----------------------------
 if command -v docker &> /dev/null; then
-  echo "Docker is already installed ($(docker --version))"
+  echo "Docker is already installed"
 else
   echo "Installing Docker..."
 
@@ -34,32 +34,30 @@ else
   apt update -y
   apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-  if [[ -n "${SUDO_USER}" ]]; then
-    usermod -aG docker "${SUDO_USER}"
-    echo "⚠️  Added ${SUDO_USER} to docker group. LOG OUT AND BACK IN for this to take effect!"
-  fi
+  usermod -aG docker "${SUDO_USER:-$USER}"
 
-  systemctl enable docker
-  systemctl start docker
-  echo "✓ Docker installed successfully"
+  echo "Docker installed. Log out and log back in to use Docker without sudo."
 fi
 
 # -----------------------------
 # Docker Compose
 # -----------------------------
 if docker compose version &> /dev/null; then
-  echo "Docker Compose is available ($(docker compose version))"
+  echo "Docker Compose is available"
 else
-  echo "⚠️  Docker Compose not found (should be installed with Docker)"
+  echo "Docker Compose not found (should be installed with Docker)"
 fi
 
 # -----------------------------
 # Python 3.9+
 # -----------------------------
-PYTHON_VERSION_CHECK=$(python3 -c 'import sys; print(1 if sys.version_info >= (3,9) else 0)' 2>/dev/null || echo 0)
-
-if command -v python3 &> /dev/null && [[ "$PYTHON_VERSION_CHECK" == "1" ]]; then
-  echo "Python 3.9+ is already installed ($(python3 --version))"
+if command -v python3 &> /dev/null && \
+   python3 - <<EOF
+import sys
+exit(0 if sys.version_info >= (3,9) else 1)
+EOF
+then
+  echo "Python 3.9+ is already installed"
 else
   echo "Installing Python 3 and pip..."
   apt install -y python3 python3-pip python3-venv
@@ -77,17 +75,10 @@ fi
 # Django
 # -----------------------------
 if python3 -m pip show django &> /dev/null; then
-  DJANGO_VERSION=$(python3 -m pip show django | grep Version | cut -d' ' -f2)
-  echo "Django is already installed (version $DJANGO_VERSION)"
+  echo "Django is already installed"
 else
   echo "Installing Django..."
-  # Install system-wide when running as root, or recommend venv
-  if [[ -n "${SUDO_USER}" ]]; then
-    echo "ℹ️  Note: Consider using a virtual environment for Django projects"
-    echo "    Create one with: python3 -m venv myproject_env"
-  fi
-  python3 -m pip install django
-  echo "✓ Django installed successfully"
+  python3 -m pip install --user django
 fi
 
 echo ""
@@ -100,6 +91,3 @@ echo "  - Docker Compose: $(docker compose version 2>/dev/null || echo 'check fa
 echo "  - Python: $(python3 --version)"
 echo "  - Django: $(python3 -m django --version 2>/dev/null || echo 'check failed')"
 echo ""
-if [[ -n "${SUDO_USER}" ]]; then
-  echo "⚠️  IMPORTANT: Log out and back in to use Docker without sudo"
-fi
