@@ -13,6 +13,8 @@ apt update -y
 # -----------------------------
 # Docker
 # -----------------------------
+DOCKER_GROUP_ADDED=false
+
 if command -v docker &> /dev/null; then
   echo "Docker is already installed"
 else
@@ -34,9 +36,12 @@ else
   apt update -y
   apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-  usermod -aG docker "${SUDO_USER:-$USER}"
+  if [[ -n "${SUDO_USER}" ]]; then
+    usermod -aG docker "${SUDO_USER}"
+    DOCKER_GROUP_ADDED=true
+  fi
 
-  echo "Docker installed. Log out and log back in to use Docker without sudo."
+  echo "Docker installed successfully."
 fi
 
 # -----------------------------
@@ -52,10 +57,7 @@ fi
 # Python 3.9+
 # -----------------------------
 if command -v python3 &> /dev/null && \
-   python3 - <<EOF
-import sys
-exit(0 if sys.version_info >= (3,9) else 1)
-EOF
+   python3 -c "import sys; exit(0 if sys.version_info >= (3,9) else 1)" 2>/dev/null
 then
   echo "Python 3.9+ is already installed"
 else
@@ -78,7 +80,8 @@ if python3 -m pip show django &> /dev/null; then
   echo "Django is already installed"
 else
   echo "Installing Django..."
-  python3 -m pip install --user django
+  # Install system-wide (no --user flag when running as root)
+  python3 -m pip install django
 fi
 
 echo ""
