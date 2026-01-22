@@ -10,7 +10,7 @@ service:
   port: 80
 
 config:
-  SECRET_KEY: "your-secret-key"
+  SECRET_KEY: "my-secret-key"
   DEBUG: "True"
   ALLOWED_HOSTS: "*"
   DB_ENGINE: "django.db.backends.sqlite3"
