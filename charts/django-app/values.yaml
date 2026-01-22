@@ -1,0 +1,23 @@
+replicaCount: 2
+
+image:
+  repository: ""
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 80
+
+config:
+  SECRET_KEY: "your-secret-key"
+  DEBUG: "True"
+  ALLOWED_HOSTS: "*"
+  DB_ENGINE: "django.db.backends.sqlite3"
+  DB_NAME: "/app/db.sqlite3"
+
+autoscaler:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70

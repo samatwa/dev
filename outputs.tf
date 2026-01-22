@@ -32,17 +32,17 @@ output "ecr_repository_url" {
 }
 
 #-------------EKS-----------------
-output "eks_cluster_endpoint" {
+output "cluster_endpoint" {
   description = "Кінцева точка API EKS для підключення до кластера"
-  value       = module.eks.eks_cluster_endpoint
+  value       = module.eks.cluster_endpoint
 }
 
-output "eks_cluster_name" {
+output "cluster_name" {
   description = "Назва кластера EKS"
-  value       = module.eks.eks_cluster_name
+  value       = module.eks.cluster_name
 }
 
-output "eks_node_role_arn" {
-  description = "ARN IAM-ролі для робочих вузлів EKS"
-  value       = module.eks.eks_node_role_arn
+output "kubeconfig_command" {
+  description = "Команда для налаштування kubeconfig"
+  value       = module.eks.kubeconfig_command
 }
