@@ -89,7 +89,7 @@ kubectl get nodes
     ```
 
 2.  **Позначте ваш локальний Docker-образ:**
-    Позначте ваш локальний образ Django-застосунку. Замініть `your-django-image:latest` на назву вашого локального образу.
+    Позначте ваш локальний образ Django-застосунку. 
 
     ```bash
     docker tag django-app:latest $(terraform output -raw ecr_repository_url):latest

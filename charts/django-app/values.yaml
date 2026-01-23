@@ -1,8 +1,8 @@
 replicaCount: 2
 
 image:
-  repository: ""
-  tag: "latest"
+  repository: <ECR_URL>
+  tag: latest
   pullPolicy: IfNotPresent
 
 service:
@@ -10,14 +10,14 @@ service:
   port: 80
 
 config:
-  SECRET_KEY: "my-secret-key"
-  DEBUG: "True"
-  ALLOWED_HOSTS: "*"
-  DB_ENGINE: "django.db.backends.sqlite3"
-  DB_NAME: "/app/db.sqlite3"
+  DJANGO_DEBUG: "False"
+  DJANGO_ALLOWED_HOSTS: "*"
+  POSTGRES_DB: vk-db
+  POSTGRES_USER: vk
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
 
 autoscaler:
-  enabled: true
   minReplicas: 2
   maxReplicas: 6
   targetCPUUtilizationPercentage: 70
