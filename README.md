@@ -44,14 +44,6 @@ lesson-7/
 │       └── values.yaml     # ConfigMap зі змінними середовища
 ```
 
-## Передумови
-
-*   [Terraform](https://www.terraform.io/downloads.html)
-*   [AWS CLI](https://aws.amazon.com/cli/) налаштований з вашими обліковими даними
-*   [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-*   [Helm](https://helm.sh/docs/intro/install/)
-*   [Docker](https://docs.docker.com/get-docker/)
-
 ## Кроки розгортання
 
 ### 1. Ініціалізація та застосування Terraform
