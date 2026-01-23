@@ -101,49 +101,26 @@ kubectl get nodes
     docker push $(terraform output -raw ecr_repository_url):latest
     ```
 
-### 4. Розгортання Django-застосунку за допомогою Helm
+### 4. Розгортання застосунку за допомогою Helm
 
-1.  **Переконайтесь, що `values.yaml` налаштовано правильно**
-
-    Файл `charts/django-app/values.yaml` **не повинен** містити URL вашого ECR-репозиторію. Це значення передається динамічно під час розгортання. Переконайтесь, що поле `image.repository` порожнє:
-
-    ```yaml
-    # charts/django-app/values.yaml
-
-    image:
-      repository: ""
-      tag: "latest"
-      pullPolicy: IfNotPresent
-    # ...
-    ```
-    Це гарантує, що ваш чарт є гнучким і не містить конфіденційної або специфічної для середовища інформації.
-
-2.  **Встановіть або оновіть Helm-чарт**
-
-    Використовуйте команду `helm upgrade --install`, щоб розгорнути ваш застосунок. Ця команда встановить реліз, якщо він не існує, або оновить його, якщо він вже був встановлений. URL ECR-репозиторію передається динамічно за допомогою прапора `--set`.
-
-    ```bash
-    helm upgrade --install my-django-release ./charts/django-app \
-      --set image.repository=$(terraform output -raw ecr_repository_url)
-    ```
-
-### 5. Доступ до застосунку
-
-Після встановлення Helm-чарту створюється сервіс типу `LoadBalancer` для надання доступу до вашого застосунку.
-
-Щоб отримати зовнішню IP-адресу, виконайте універсальну команду для перегляду всіх сервісів:
+Після того, як образ завантажено в ECR, ви можете розгорнути Django-застосунок за допомогою Helm-чарту.
 
 ```bash
-kubectl get svc
+helm install django-app ./charts/django-app --set image.repository=$(terraform output -raw ecr_repository_url) --set image.tag=latest
 ```
 
-У списку знайдіть сервіс, що відповідає вашому релізу (наприклад, `my-django-release-django-app`) і має тип `LoadBalancer`. Дочекайтеся, поки в колонці `EXTERNAL-IP` з'явиться IP-адреса.
+### Керування змінними
 
-Після цього ваш застосунок буде доступний за цією IP-адресою у веб-браузері.
+Ви можете перевизначити змінні, що використовуються в модулях, створивши файл `terraform.tfvars` у кореневій директорії проєкту. Наприклад:
 
-## Очищення
+```hcl
+region = "us-west-2"
+cluster_name = "my-eks-cluster"
+```
 
-Щоб знищити всі створені ресурси, виконайте таку команду:
+### Очищення
+
+Щоб видалити всі створені ресурси, виконайте команду:
 
 ```bash
 terraform destroy

@@ -10,7 +10,7 @@ output "cluster_name" {
 
 output "kubeconfig_command" {
   description = "Команда для оновлення файлу kubeconfig."
-  value       = "aws eks update-kubeconfig --region eu-north-1 --name ${aws_eks_cluster.eks.name}"
+  value       = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.eks.name}"
 }
 
 output "eks_node_role_arn" {
