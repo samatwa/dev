@@ -101,15 +101,6 @@ kubectl get nodes
 helm install django-app ./charts/django-app --set image.repository=$(terraform output -raw ecr_repository_url) --set image.tag=latest
 ```
 
-### Керування змінними
-
-Ви можете перевизначити змінні, що використовуються в модулях, створивши файл `terraform.tfvars` у кореневій директорії проєкту. Наприклад:
-
-```hcl
-region = "us-west-2"
-cluster_name = "my-eks-cluster"
-```
-
 ### Очищення
 
 Щоб видалити всі створені ресурси, виконайте команду:
