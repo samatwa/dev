@@ -46,3 +46,14 @@ output "kubeconfig_command" {
   description = "Команда для налаштування kubeconfig"
   value       = module.eks.kubeconfig_command
 }
+
+#-------------Jenkins-----------------
+output "jenkins_release" {
+  description = "Назва релізу Jenkins"
+  value       = module.jenkins.jenkins_release_name
+}
+
+output "jenkins_namespace" {
+  description = "Простір імен, в якому розгорнуто Jenkins"
+  value       = module.jenkins.jenkins_namespace
+}
