@@ -31,3 +31,8 @@ module "eks" {
   max_size        = 3                                 # Максимальна кількість нодів
   min_size        = 2                                 # Мінімальна кількість нодів
 }
+
+module "jenkins" {
+  source       = "./modules/jenkins"
+  cluster_name = module.eks.eks_cluster_name
+}
