@@ -1,10 +1,10 @@
 # Jenkins + Helm + Terraform + Argo CD
 
-'''
+```
 lesson-8-9/
 │
 ├── main.tf                  # Головний файл для підключення модулів
-├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB
+├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB)
 ├── outputs.tf               # Загальні виводи ресурсів
 │
 ├── modules/                 # Каталог з усіма модулями
@@ -58,7 +58,8 @@ lesson-8-9/
 │       │   └── hpa.yaml
 │       ├── Chart.yaml
 │       └── values.yaml     # ConfigMap зі змінними середовища
-'''
+
+```
 
 ## Як застосувати Terraform
 
