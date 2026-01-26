@@ -1,9 +1,9 @@
-output "cluster_endpoint" {
+output "eks_cluster_endpoint" {
   description = "Кінцева точка API-сервера вашого кластера EKS."
   value       = aws_eks_cluster.eks.endpoint
 }
 
-output "cluster_name" {
+output "eks_cluster_name" {
   description = "Назва кластера EKS."
   value       = aws_eks_cluster.eks.name
 }
@@ -16,4 +16,12 @@ output "kubeconfig_command" {
 output "eks_node_role_arn" {
   description = "ARN IAM-ролі для робочих вузлів EKS"
   value       = aws_iam_role.nodes.arn
+}
+
+output "oidc_provider_arn" {
+  value = aws_iam_openid_connect_provider.oidc.arn
+}
+
+output "oidc_provider_url" {
+  value = aws_iam_openid_connect_provider.oidc.url
 }

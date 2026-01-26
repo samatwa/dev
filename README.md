@@ -61,6 +61,17 @@ lesson-8-9/
 
 ```
 
+## Налаштування Секретів
+
+Перед застосуванням Terraform, необхідно створити Kubernetes Secret для безпечного зберігання вашого GitHub Personal Access Token.
+
+1.  **Створіть файл `github-credentials.yaml`**
+
+2.  **Застосуйте цей секрет до вашого кластера:**
+    ```bash
+    kubectl apply -f github-credentials.yaml
+    ```
+
 ## Як застосувати Terraform
 
 1.  **Ініціалізація:**
