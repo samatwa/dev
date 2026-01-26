@@ -1,14 +1,10 @@
-# Інфраструктура для Django-застосунку на EKS
+# Jenkins + Helm + Terraform + Argo CD
 
-Цей проєкт використовує Terraform для створення необхідної інфраструктури в AWS для запуску Django-застосунку на кластері Kubernetes (EKS). Інфраструктура включає VPC, репозиторій ECR для Docker-образів та кластер EKS. Застосунок розгортається за допомогою Helm-чарту.
-
-## Структура проєкту
-
-```
-lesson-7/
+'''
+lesson-8-9/
 │
 ├── main.tf                  # Головний файл для підключення модулів
-├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB)
+├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB
 ├── outputs.tf               # Загальні виводи ресурсів
 │
 ├── modules/                 # Каталог з усіма модулями
@@ -28,11 +24,31 @@ lesson-7/
 │   │   ├── variables.tf     # Змінні для ECR
 │   │   └── outputs.tf       # Виведення URL репозиторію
 │   │
-│   ├── eks/                 # Модуль для Kubernetes кластера
-│   │   ├── eks.tf           # Створення кластера
+│   ├── eks/                      # Модуль для Kubernetes кластера
+│   │   ├── eks.tf                # Створення кластера
+│   │   ├── aws_ebs_csi_driver.tf # Встановлення плагіну csi drive
 │   │   ├── variables.tf     # Змінні для EKS
 │   │   └── outputs.tf       # Виведення інформації про кластер
-│
+│   │
+│   ├── jenkins/             # Модуль для Helm-установки Jenkins
+│   │   ├── jenkins.tf       # Helm release для Jenkins
+│   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
+│   │   ├── providers.tf     # Оголошення провайдерів
+│   │   ├── values.yaml      # Конфігурація jenkins
+│   │   └── outputs.tf       # Виводи (URL, пароль адміністратора)
+│   │ 
+│   └── argo_cd/             # ✅ Новий модуль для Helm-установки Argo CD
+│       ├── jenkins.tf       # Helm release для Jenkins
+│       ├── variables.tf     # Змінні (версія чарта, namespace, repo URL тощо)
+│       ├── providers.tf     # Kubernetes+Helm.  переносимо з модуля jenkins
+│       ├── values.yaml      # Кастомна конфігурація Argo CD
+│       ├── outputs.tf       # Виводи (hostname, initial admin password)
+│		    └──charts/                  # Helm-чарт для створення app'ів
+│ 	 	    ├── Chart.yaml
+│	  	    ├── values.yaml          # Список applications, repositories
+│			    └── templates/
+│		        ├── application.yaml
+│		        └── repository.yaml
 ├── charts/
 │   └── django-app/
 │       ├── templates/
@@ -42,69 +58,44 @@ lesson-7/
 │       │   └── hpa.yaml
 │       ├── Chart.yaml
 │       └── values.yaml     # ConfigMap зі змінними середовища
-```
+'''
 
-## Кроки розгортання
+## Як застосувати Terraform
 
-### 1. Ініціалізація та застосування Terraform
-
-Спочатку ініціалізуйте Terraform, щоб завантажити необхідні провайдери та модулі. Потім застосуйте конфігурацію для створення ресурсів AWS.
-
-```bash
-terraform init
-terraform apply
-```
-
-Підтвердіть дію, ввівши `yes`. Після завершення процесу Terraform створить VPC, репозиторій ECR та кластер EKS. Будуть відображені необхідні виводи для наступних кроків.
-
-### 2. Налаштування kubectl
-
-Використовуйте команду з виводу Terraform, щоб налаштувати `kubectl` для підключення до вашого нового кластера EKS.
-
-```bash
-$(terraform output -raw kubeconfig_command)
-```
-
-Ви можете перевірити підключення до кластера, перевіривши вузли:
-
-```bash
-kubectl get nodes
-```
-
-### 3. Створення та завантаження Docker-образу в ECR
-
-1.  **Увійдіть до ECR:**
-    Отримайте пароль для входу до вашого репозиторію ECR та увійдіть за допомогою Docker.
-
+1.  **Ініціалізація:**
     ```bash
-    aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin $(terraform output -raw ecr_repository_url)
+    terraform init
+    ```
+2.  **Планування:**
+    ```bash
+    terraform plan
+    ```
+3.  **Застосування:**
+    ```bash
+    terraform apply
     ```
 
-2.  **Позначте ваш локальний Docker-образ:**
-    Позначте ваш локальний образ Django-застосунку. 
+## Як перевірити Jenkins job
 
+1.  **Отримайте URL та пароль Jenkins:**
     ```bash
-    docker tag django-app:latest $(terraform output -raw ecr_repository_url):latest
+    terraform output jenkins_url
+    terraform output jenkins_password
     ```
+2.  **Перейдіть за URL** у вашому браузері та увійдіть, використовуючи отриманий пароль.
+3.  **Знайдіть ваш pipeline job** і перевірте його статус. Ви можете переглянути логи для кожного етапу (Build, Push, Update Chart).
 
-3.  **Завантажте образ в ECR:**
+## Як побачити результат в Argo CD
 
+1.  **Отримайте доступ до Argo CD:**
+    Спочатку отримайте пароль:
     ```bash
-    docker push $(terraform output -raw ecr_repository_url):latest
+    kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
     ```
-
-### 4. Розгортання застосунку за допомогою Helm
-
-Після того, як образ завантажено в ECR, ви можете розгорнути Django-застосунок за допомогою Helm-чарту.
-
-```bash
-helm install django-app ./charts/django-app --set image.repository=$(terraform output -raw ecr_repository_url) --set image.tag=latest
-```
-
-### Очищення
-
-Щоб видалити всі створені ресурси, виконайте команду:
-
-```bash
-terraform destroy
-```
+    Прокиньте порт для доступу до UI:
+    ```bash
+    kubectl port-forward svc/argocd-server -n argocd 8080:443
+    ```
+2.  **Перейдіть на `https://localhost:8080`** у вашому браузері.
+3.  **Увійдіть в Argo CD**, використовуючи ім'я користувача `admin` та пароль, який ви отримали.
+4.  **Знайдіть ваш застосунок** (наприклад, `django-app`) і перевірте його статус. Він має бути `Synced` та `Healthy`. Ви можете побачити всі ресурси, які були розгорнуті, та їхній стан.
