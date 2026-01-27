@@ -63,14 +63,59 @@ lesson-8-9/
 
 ## Налаштування Секретів
 
-Перед застосуванням Terraform, необхідно створити Kubernetes Secret для безпечного зберігання вашого GitHub Personal Access Token.
+Перед застосуванням інфраструктури, необхідно налаштувати секрети для доступу до GitHub. Ми створимо два окремі секрети: один для Jenkins, інший для Argo CD.
 
-1.  **Створіть файл `github-credentials.yaml`**
+### 1. Секрет для Jenkins
 
-2.  **Застосуйте цей секрет до вашого кластера:**
+Цей секрет буде використовуватися Jenkins для клонування репозиторіїв та оновлення Helm-чартів.
+
+1.  **Створіть файл `github-credentials.yaml`** з таким вмістом:
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: github-credentials
+      # Важливо: вкажіть той самий namespace, де буде встановлено Jenkins
+      namespace: default 
+    type: Opaque
+    stringData:
+      username: "YOUR_GITHUB_USERNAME"
+      password: "YOUR_GITHUB_PAT" 
+    ```
+2.  Замініть `YOUR_GITHUB_USERNAME` та `YOUR_GITHUB_PAT` на ваші дані.
+3.  **Застосуйте секрет:**
     ```bash
     kubectl apply -f github-credentials.yaml
     ```
+
+### 2. Секрет для Argo CD
+
+Цей секрет дозволить Argo CD підключитися до вашого Git-репозиторію для синхронізації додатків.
+
+1.  **Створіть файл `argo-repo-secret.yaml`** з таким вмістом:
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: argo-private-repo
+      # Важливо: секрет має бути в тому ж неймспейсі, що й Argo CD
+      namespace: argo-cd 
+      labels:
+        # Цей лейбл вказує Argo CD, що це секрет з доступом до репозиторію
+        argocd.argoproj.io/secret-type: repository 
+    stringData:
+      type: git
+      url: https://github.com/YOUR_USERNAME/YOUR_REPO.git # URL вашого репозиторію
+      username: YOUR_GITHUB_USERNAME
+      password: YOUR_GITHUB_PAT
+    ```
+2.  Замініть плейсхолдери (`YOUR_...`) на ваші реальні дані.
+3.  **Застосуйте секрет:**
+    ```bash
+    kubectl apply -f argo-repo-secret.yaml
+    ```
+    
+**Важливо:** Обидва файли з секретами (`github-credentials.yaml` та `argo-repo-secret.yaml`) додані до `.gitignore`, щоб уникнути їх потрапляння у віддалений репозиторій.
 
 ## Як застосувати Terraform
 
@@ -102,11 +147,11 @@ lesson-8-9/
 1.  **Отримайте доступ до Argo CD:**
     Спочатку отримайте пароль:
     ```bash
-    kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+    kubectl -n argo-cd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
     ```
     Прокиньте порт для доступу до UI:
     ```bash
-    kubectl port-forward svc/argocd-server -n argocd 8080:443
+    kubectl port-forward svc/argocd-server -n argo-cd 8080:443
     ```
 2.  **Перейдіть на `https://localhost:8080`** у вашому браузері.
 3.  **Увійдіть в Argo CD**, використовуючи ім'я користувача `admin` та пароль, який ви отримали.

@@ -62,7 +62,7 @@ controller:
                 scm {
                   git {
                     remote {
-                      url('https://github.com/samatwa/infra.git')
+                      url('https://github.com/samatwa/dev.git')
                       credentials('github-token')
                     }
                     branches('*/main')
@@ -77,7 +77,7 @@ controller:
                             scm {
                               git {
                                 remote {
-                                  url("https://github.com/samatwa/infra.git")
+                                  url("https://github.com/samatwa/dev.git")
                                   credentials("github-token")
                                 }
                                 branches("*/main")

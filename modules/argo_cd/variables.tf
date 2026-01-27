@@ -7,7 +7,7 @@ variable "name" {
 variable "namespace" {
   description = "K8s namespace для Argo CD"
   type        = string
-  default     = "argocd"
+  default     = "argo-cd"
 }
 
 variable "chart_version" {

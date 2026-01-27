@@ -1,9 +1,9 @@
-output "eks_cluster_endpoint" {
+output "cluster_endpoint" {
   description = "Кінцева точка API-сервера вашого кластера EKS."
   value       = aws_eks_cluster.eks.endpoint
 }
 
-output "eks_cluster_name" {
+output "cluster_name" {
   description = "Назва кластера EKS."
   value       = aws_eks_cluster.eks.name
 }
@@ -24,4 +24,19 @@ output "oidc_provider_arn" {
 
 output "oidc_provider_url" {
   value = aws_iam_openid_connect_provider.oidc.url
+}
+
+output "eks_cluster_ca_certificate" {
+  description = "Base64 encoded certificate data required to communicate with the cluster."
+  value       = aws_eks_cluster.eks.certificate_authority[0].data
+}
+
+data "aws_eks_cluster_auth" "eks" {
+  name = aws_eks_cluster.eks.name
+}
+
+output "eks_cluster_token" {
+  description = "The token to use for authentication with the cluster."
+  value       = data.aws_eks_cluster_auth.eks.token
+  sensitive   = true
 }

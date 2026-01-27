@@ -1,6 +1,6 @@
 apiVersion: v2
 name: django-app
 description: A Helm chart for deploying a Django application
-icon: https://www.djangoproject.com/m/img/logos/django-logo-positive.png
+icon: "https://www.djangoproject.com/m/img/logos/django-logo-positive.png"
 version: 0.1.0
 appVersion: "1.0"

@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: {{ .Chart.Name }}
-  namespace: argocd
+  namespace: argo-cd
 spec:
   project: default
   source:
@@ -10,7 +10,7 @@ spec:
     targetRevision: HEAD
     path: {{ .Values.path }}
   destination:
-    server: https://kubernetes.default.svc
+    server: "https://kubernetes.default.svc"
     namespace: {{ .Values.namespace }}
   syncPolicy:
     automated:

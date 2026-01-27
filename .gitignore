@@ -32,3 +32,4 @@ terraform.rc
 
 # Ignore sensitive credentials files
 github-credentials.yaml
+argo-repo-secret.yaml

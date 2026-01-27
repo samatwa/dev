@@ -33,12 +33,18 @@ module "eks" {
 }
 
 module "jenkins" {
-  source       = "./modules/jenkins"
-  cluster_name = module.eks.eks_cluster_name
+  source                     = "./modules/jenkins"
+  cluster_name               = module.eks.cluster_name
+  oidc_provider_arn          = module.eks.oidc_provider_arn
+  oidc_provider_url          = module.eks.oidc_provider_url
+  kubeconfig                 = module.eks.kubeconfig_command
+  eks_cluster_endpoint       = module.eks.cluster_endpoint
+  eks_cluster_ca_certificate = module.eks.eks_cluster_ca_certificate
+  eks_cluster_token          = module.eks.eks_cluster_token
 }
 
 module "argo_cd" {
-  source       = "./modules/argo-cd"
-  namespace    = "argocd"
+  source       = "./modules/argo_cd"
+  namespace    = "argo-cd"
   chart_version = "5.46.4"
 }

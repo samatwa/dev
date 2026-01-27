@@ -1,8 +1,12 @@
+data "tls_certificate" "eks" {
+  url = aws_eks_cluster.eks.identity[0].oidc[0].issuer
+}
+
 # Створюємо IAM OIDC Provider для IRSA
 resource "aws_iam_openid_connect_provider" "oidc" {
   url             = aws_eks_cluster.eks.identity[0].oidc[0].issuer
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da0ecd6c6f9"]
+  thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
 }
 
 # IAM роль для EBS CSI Driver
