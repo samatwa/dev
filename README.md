@@ -38,7 +38,7 @@ lesson-8-9/
 │   │   └── outputs.tf       # Виводи (URL, пароль адміністратора)
 │   │ 
 │   └── argo_cd/             # ✅ Новий модуль для Helm-установки Argo CD
-│       ├── jenkins.tf       # Helm release для Jenkins
+│       ├── argocd.tf       # Helm release для Jenkins
 │       ├── variables.tf     # Змінні (версія чарта, namespace, repo URL тощо)
 │       ├── providers.tf     # Kubernetes+Helm.  переносимо з модуля jenkins
 │       ├── values.yaml      # Кастомна конфігурація Argo CD
