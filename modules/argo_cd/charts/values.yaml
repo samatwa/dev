@@ -1,0 +1,18 @@
+applications:
+  - name: django-app
+    namespace: default
+    project: default
+    source:
+      repoURL: "https://github.com/samatwa/dev.git"
+      path: "charts/django-app" 
+      targetRevision: main
+      helm:
+        valueFiles:
+          - values.yaml
+    destination:
+      server: "https://kubernetes.default.svc"
+      namespace: default
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true

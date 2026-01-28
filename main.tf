@@ -12,13 +12,13 @@ module "vpc" {
   public_subnets     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   private_subnets    = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
   availability_zones = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
-  vpc_name           = "lesson-7-vpc"
+  vpc_name           = "lesson-8-9-vpc"
 }
 
 # Підключаємо модуль ECR
 module "ecr" {
   source      = "./modules/ecr"
-  ecr_name    = "lesson-7-ecr"
+  ecr_name    = "lesson-8-9-ecr"
   scan_on_push = true
 }
 
@@ -33,6 +33,18 @@ module "eks" {
 }
 
 module "jenkins" {
-  source       = "./modules/jenkins"
-  cluster_name = module.eks.eks_cluster_name
+  source                     = "./modules/jenkins"
+  cluster_name               = module.eks.cluster_name
+  oidc_provider_arn          = module.eks.oidc_provider_arn
+  oidc_provider_url          = module.eks.oidc_provider_url
+  kubeconfig                 = module.eks.kubeconfig_command
+  eks_cluster_endpoint       = module.eks.cluster_endpoint
+  eks_cluster_ca_certificate = module.eks.eks_cluster_ca_certificate
+  eks_cluster_token          = module.eks.eks_cluster_token
+}
+
+module "argo_cd" {
+  source       = "./modules/argo_cd"
+  namespace    = "argo-cd"
+  chart_version = "5.46.4"
 }
