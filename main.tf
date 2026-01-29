@@ -71,9 +71,9 @@ module "rds" {
   allocated_storage          = 20
   db_name                    = "myapp"
   username                   = "postgres"
-  password                   = "admin123AWS23"
-  subnet_private_ids         = module.vpc.private_subnets
-  subnet_public_ids          = module.vpc.public_subnets
+  password                   = "admin123456"
+  subnet_private_ids         = module.vpc.private_subnet_ids
+  subnet_public_ids          = module.vpc.public_subnet_ids
   publicly_accessible        = true
   vpc_id                     = module.vpc.vpc_id
   multi_az                   = true
