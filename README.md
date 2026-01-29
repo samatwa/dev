@@ -1,10 +1,10 @@
-# Jenkins + Helm + Terraform + Argo CD
+# Jenkins + Helm + Terraform + Argo CD + RDS
 
 ```
-lesson-8-9/
+lesson-db-module
 │
 ├── main.tf                  # Головний файл для підключення модулів
-├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB)
+├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB
 ├── outputs.tf               # Загальні виводи ресурсів
 │
 ├── modules/                 # Каталог з усіма модулями
@@ -24,12 +24,19 @@ lesson-8-9/
 │   │   ├── variables.tf     # Змінні для ECR
 │   │   └── outputs.tf       # Виведення URL репозиторію
 │   │
-│   ├── eks/                      # Модуль для Kubernetes кластера
-│   │   ├── eks.tf                # Створення кластера
-│   │   ├── aws_ebs_csi_driver.tf # Встановлення плагіну csi drive
-│   │   ├── variables.tf     # Змінні для EKS
-│   │   └── outputs.tf       # Виведення інформації про кластер
+│   ├── eks/                        # Модуль для Kubernetes кластера
+│   │   ├── eks.tf                  # Створення кластера
+│   │   ├── aws_ebs_csi_driver.tf   # Встановлення плагіну csi drive
+│   │   ├── variables.tf            # Змінні для EKS
+│   │   └── outputs.tf              # Виведення інформації про кластер
 │   │
+│   ├── rds/                 # Модуль для RDS
+│   │   ├── rds.tf           # Створення RDS бази даних  
+│   │   ├── aurora.tf        # Створення aurora кластера бази даних  
+│   │   ├── shared.tf        # Спільні ресурси  
+│   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
+│   │   └── outputs.tf  
+│   │ 
 │   ├── jenkins/             # Модуль для Helm-установки Jenkins
 │   │   ├── jenkins.tf       # Helm release для Jenkins
 │   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
@@ -38,7 +45,7 @@ lesson-8-9/
 │   │   └── outputs.tf       # Виводи (URL, пароль адміністратора)
 │   │ 
 │   └── argo_cd/             # ✅ Новий модуль для Helm-установки Argo CD
-│       ├── argocd.tf       # Helm release для Jenkins
+│       ├── jenkins.tf       # Helm release для Jenkins
 │       ├── variables.tf     # Змінні (версія чарта, namespace, repo URL тощо)
 │       ├── providers.tf     # Kubernetes+Helm.  переносимо з модуля jenkins
 │       ├── values.yaml      # Кастомна конфігурація Argo CD
