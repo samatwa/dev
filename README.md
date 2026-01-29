@@ -114,7 +114,7 @@ module "rds" {
 | `engine_cluster` | Тип БД для Aurora (aurora-postgresql, aurora-mysql) | `string` | `"aurora-postgresql"` |
 | `engine_version` | Версія двигуна для RDS | `string` | `"14.7"` |
 | `engine_version_cluster` | Версія двигуна для Aurora | `string` | `"15.3"` |
-| `instance_class` | Клас потужності інстансу (наприклад, `db.t3.micro`) | `string` | `"db.t3.micro"` |
+| `instance_class` | Клас потужності інстансу | `string` | `"db.t3.micro"` |
 | `allocated_storage` | Обсяг диска в ГБ (тільки для RDS) | `number` | `20` |
 | `db_name` | Назва бази даних при створенні | `string` | - |
 | `username` | Логін адміністратора | `string` | - |
