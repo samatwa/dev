@@ -1,7 +1,9 @@
-# Jenkins + Helm + Terraform + Argo CD
+# Модуль RDS
+
+Універсальний модуль для розгортання **AWS Aurora Cluster** або звичайної **RDS Instance**.
 
 ```
-lesson-8-9/
+lesson-db-module
 │
 ├── main.tf                  # Головний файл для підключення модулів
 ├── backend.tf               # Налаштування бекенду для стейтів (S3 + DynamoDB)
@@ -24,12 +26,19 @@ lesson-8-9/
 │   │   ├── variables.tf     # Змінні для ECR
 │   │   └── outputs.tf       # Виведення URL репозиторію
 │   │
-│   ├── eks/                      # Модуль для Kubernetes кластера
-│   │   ├── eks.tf                # Створення кластера
-│   │   ├── aws_ebs_csi_driver.tf # Встановлення плагіну csi drive
-│   │   ├── variables.tf     # Змінні для EKS
-│   │   └── outputs.tf       # Виведення інформації про кластер
+│   ├── eks/                        # Модуль для Kubernetes кластера
+│   │   ├── eks.tf                  # Створення кластера
+│   │   ├── aws_ebs_csi_driver.tf   # Встановлення плагіну csi drive
+│   │   ├── variables.tf            # Змінні для EKS
+│   │   └── outputs.tf              # Виведення інформації про кластер
 │   │
+│   ├── rds/                 # Модуль для RDS
+│   │   ├── rds.tf           # Створення RDS бази даних  
+│   │   ├── aurora.tf        # Створення aurora кластера бази даних  
+│   │   ├── shared.tf        # Спільні ресурси  
+│   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
+│   │   └── outputs.tf  
+│   │ 
 │   ├── jenkins/             # Модуль для Helm-установки Jenkins
 │   │   ├── jenkins.tf       # Helm release для Jenkins
 │   │   ├── variables.tf     # Змінні (ресурси, креденшели, values)
@@ -38,7 +47,7 @@ lesson-8-9/
 │   │   └── outputs.tf       # Виводи (URL, пароль адміністратора)
 │   │ 
 │   └── argo_cd/             # ✅ Новий модуль для Helm-установки Argo CD
-│       ├── argocd.tf       # Helm release для Jenkins
+│       ├── jenkins.tf       # Helm release для Jenkins
 │       ├── variables.tf     # Змінні (версія чарта, namespace, repo URL тощо)
 │       ├── providers.tf     # Kubernetes+Helm.  переносимо з модуля jenkins
 │       ├── values.yaml      # Кастомна конфігурація Argo CD
@@ -61,98 +70,65 @@ lesson-8-9/
 
 ```
 
-## Налаштування Секретів
+### Приклад використання
 
-Перед застосуванням інфраструктури, необхідно налаштувати секрети для доступу до GitHub. Ми створимо два окремі секрети: один для Jenkins, інший для Argo CD.
+```hcl
+module "rds" {
+  source = "./modules/rds"
 
-### 1. Секрет для Jenkins
+  name                = "myapp-db"
+  use_aurora          = false # true для Aurora, false для звичайного RDS
+  
+  # Налаштування двигуна
+  engine              = "postgres"
+  engine_version      = "15.4"
+  instance_class      = "db.t3.micro"
+  allocated_storage   = 20
+  
+  # База даних та доступ
+  db_name             = "myappdb"
+  username            = "dbadmin"
+  password            = "your-secure-password"
+  
+  # Мережа
+  vpc_id              = module.vpc.vpc_id
+  subnet_private_ids  = module.vpc.private_subnets
+  subnet_public_ids   = module.vpc.public_subnets
+  publicly_accessible = false
+  
+  # Додаткові параметри
+  multi_az            = true
+  parameters = {
+    max_connections = "200"
+  }
+}
+```
 
-Цей секрет буде використовуватися Jenkins для клонування репозиторіїв та оновлення Helm-чартів.
+### Опис змінних
 
-1.  **Створіть файл `github-credentials.yaml`** з таким вмістом:
-    ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: github-credentials
-      # Важливо: вкажіть той самий namespace, де буде встановлено Jenkins
-      namespace: default 
-    type: Opaque
-    stringData:
-      username: "YOUR_GITHUB_USERNAME"
-      password: "YOUR_GITHUB_PAT" 
-    ```
-2.  Замініть `YOUR_GITHUB_USERNAME` та `YOUR_GITHUB_PAT` на ваші дані.
-3.  **Застосуйте секрет:**
-    ```bash
-    kubectl apply -f github-credentials.yaml
-    ```
+| Змінна | Опис | Тип | За замовчуванням |
+| :--- | :--- | :--- | :--- |
+| `name` | Назва ресурсу (буде використана як префікс для SG, PG, Subnet Group) | `string` | - |
+| `use_aurora` | Вибір типу БД: `true` — Aurora Cluster, `false` — RDS Instance | `bool` | `false` |
+| `engine` | Тип БД (двигун) для звичайного RDS (postgres, mysql, etc.) | `string` | `"postgres"` |
+| `engine_cluster` | Тип БД для Aurora (aurora-postgresql, aurora-mysql) | `string` | `"aurora-postgresql"` |
+| `engine_version` | Версія двигуна для RDS | `string` | `"14.7"` |
+| `engine_version_cluster` | Версія двигуна для Aurora | `string` | `"15.3"` |
+| `instance_class` | Клас потужності інстансу | `string` | `"db.t3.micro"` |
+| `allocated_storage` | Обсяг диска в ГБ (тільки для RDS) | `number` | `20` |
+| `db_name` | Назва бази даних при створенні | `string` | - |
+| `username` | Логін адміністратора | `string` | - |
+| `password` | Пароль адміністратора (Sensitive) | `string` | - |
+| `vpc_id` | ID VPC для створення Security Group | `string` | - |
+| `subnet_private_ids` | Список ID приватних підмереж для Subnet Group | `list(string)` | - |
+| `subnet_public_ids` | Список ID публічних підмереж (якщо `publicly_accessible = true`) | `list(string)` | - |
+| `publicly_accessible` | Чи дозволяти доступ до БД з публчних мереж | `bool` | `false` |
+| `multi_az` | Режим високої доступності (Multi-AZ) | `bool` | `false` |
+| `parameters` | Мапа кастомних параметрів для Parameter Group | `map(string)` | `{}` |
 
-### 2. Секрет для Argo CD
+### Як змінити конфігурацію
 
-Цей секрет дозволить Argo CD підключитися до вашого Git-репозиторію для синхронізації додатків.
-
-1.  **Створіть файл `argo-repo-secret.yaml`** з таким вмістом:
-    ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: argo-private-repo
-      # Важливо: секрет має бути в тому ж неймспейсі, що й Argo CD
-      namespace: argo-cd 
-      labels:
-        # Цей лейбл вказує Argo CD, що це секрет з доступом до репозиторію
-        argocd.argoproj.io/secret-type: repository 
-    stringData:
-      type: git
-      url: https://github.com/YOUR_USERNAME/YOUR_REPO.git # URL вашого репозиторію
-      username: YOUR_GITHUB_USERNAME
-      password: YOUR_GITHUB_PAT
-    ```
-2.  Замініть плейсхолдери (`YOUR_...`) на ваші реальні дані.
-3.  **Застосуйте секрет:**
-    ```bash
-    kubectl apply -f argo-repo-secret.yaml
-    ```
-    
-**Важливо:** Обидва файли з секретами (`github-credentials.yaml` та `argo-repo-secret.yaml`) додані до `.gitignore`, щоб уникнути їх потрапляння у віддалений репозиторій.
-
-## Як застосувати Terraform
-
-1.  **Ініціалізація:**
-    ```bash
-    terraform init
-    ```
-2.  **Планування:**
-    ```bash
-    terraform plan
-    ```
-3.  **Застосування:**
-    ```bash
-    terraform apply
-    ```
-
-## Як перевірити Jenkins job
-
-1.  **Отримайте URL та пароль Jenkins:**
-    ```bash
-    terraform output jenkins_url
-    terraform output jenkins_password
-    ```
-2.  **Перейдіть за URL** у вашому браузері та увійдіть, використовуючи отриманий пароль.
-3.  **Знайдіть ваш pipeline job** і перевірте його статус. Ви можете переглянути логи для кожного етапу (Build, Push, Update Chart).
-
-## Як побачити результат в Argo CD
-
-1.  **Отримайте доступ до Argo CD:**
-    Спочатку отримайте пароль:
-    ```bash
-    kubectl -n argo-cd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-    ```
-    Прокиньте порт для доступу до UI:
-    ```bash
-    kubectl port-forward svc/argocd-server -n argo-cd 8080:443
-    ```
-2.  **Перейдіть на `https://localhost:8080`** у вашому браузері.
-3.  **Увійдіть в Argo CD**, використовуючи ім'я користувача `admin` та пароль, який ви отримали.
-4.  **Знайдіть ваш застосунок** (наприклад, `django-app`) і перевірте його статус. Він має бути `Synced` та `Healthy`. Ви можете побачити всі ресурси, які були розгорнуті, та їхній стан.
+1.  **Тип бази даних**: Використовуйте `use_aurora = true` для кластера Aurora (краще підходить для високих навантажень) або `use_aurora = false` для дешевших інстансів.
+2.  **Двигун (Engine)**: Змініть `engine` (для RDS) або `engine_cluster` (для Aurora). Також не забудьте оновити `parameter_group_family_rds` або `parameter_group_family_aurora` відповідно до версії.
+3.  **Клас інстансу**: Параметр `instance_class` дозволяє масштабувати ресурси (CPU/RAM).
+4.  **Параметри БД**: Модуль автоматично створює `Parameter Group`. Ви можете передати список параметрів через мапу `parameters`, і вони будуть додані до стандартних (`max_connections`, `log_statement`, `work_mem`).
