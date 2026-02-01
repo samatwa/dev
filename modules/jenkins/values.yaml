@@ -1,8 +1,8 @@
-persistence:
-  enabled: true
-  existingClaim: jenkins
-
 controller:
+  persistence:
+    enabled: true
+    existingClaim: jenkins
+
   admin:
     username: admin
     password: admin123
@@ -43,8 +43,6 @@ controller:
         security:
           globalJobDslSecurityConfiguration:
             useScriptSecurity: false
-        jenkins:
-          crumbIssuer: null
       credentials: |
         credentials:
           system:
