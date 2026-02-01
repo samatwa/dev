@@ -114,6 +114,9 @@ kubectl get all -n jenkins
 kubectl get all -n argocd
 kubectl get all -n monitoring
 ```
+![alt text](screenshots/01.png)
+![alt text](screenshots/02.png)
+![alt text](screenshots/03.png)
 
 ### 4. Доступ до інструментів
 Використовуйте `port-forward` для доступу до UI (команди також будуть доступні в `terraform outputs`):

@@ -58,6 +58,17 @@ output "jenkins_namespace" {
   value       = module.jenkins.jenkins_namespace
 }
 
+#-------------RDS-----------------
+output "db_endpoint" {
+  description = "Connection endpoint for the RDS instance"
+  value       = module.rds.db_instance_endpoint
+}
+
+output "db_name" {
+  description = "Database name"
+  value       = module.rds.db_name
+}
+
 #-------------Tools Access Commands-----------------
 output "jenkins_login_command" {
   value = "kubectl port-forward svc/jenkins 8080:8080 -n jenkins"
