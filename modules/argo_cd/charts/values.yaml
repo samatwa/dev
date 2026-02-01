@@ -5,7 +5,7 @@ applications:
     source:
       repoURL: "https://github.com/samatwa/dev.git"
       path: "charts/django-app" 
-      targetRevision: final-project
+      targetRevision: main
       helm:
         valueFiles:
           - values.yaml
