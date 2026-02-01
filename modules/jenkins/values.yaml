@@ -38,6 +38,7 @@ controller:
      create: false
 
   JCasC:
+    enabled: true
     configScripts:
       credentials: |
         credentials:
@@ -47,14 +48,10 @@ controller:
                   - usernamePassword:
                       scope: GLOBAL
                       id: github-token
-                      username: "${file:/run/secrets/github/username}"
-                      password: "${file:/run/secrets/github/password}"
+                      username: ""
+                      password: ""
                       description: "GitHub PAT from K8s secret"
-    security:
-      secrets:
-        - name: github-credentials
-          mountPath: /run/secrets/github
-      seed-job: |
+      jobs: |
         jobs:
           - script: >
               job('seed-job') {
@@ -90,3 +87,8 @@ controller:
                   }
                 }
               }
+
+  secretMounts:
+    - name: github-credentials
+      secretName: github-credentials
+      mountPath: /run/secrets/github
