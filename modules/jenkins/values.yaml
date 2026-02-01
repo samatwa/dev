@@ -2,6 +2,10 @@ persistence:
   enabled: true
   existingClaim: jenkins
 
+serviceAccount:
+  name: jenkins-sa
+  create: false
+
 controller:
   admin:
     username: admin
@@ -21,6 +25,36 @@ controller:
       cpu: "250m"
       memory: "512Mi"
 
+  probes:
+    startupProbe:
+      failureThreshold: 30
+      httpGet:
+        path: "/login"
+        port: 8080
+      periodSeconds: 10
+      timeoutSeconds: 5
+    livenessProbe:
+      failureThreshold: 10
+      httpGet:
+        path: "/login"
+        port: 8080
+      periodSeconds: 10
+      timeoutSeconds: 5
+      initialDelaySeconds: 30
+    readinessProbe:
+      failureThreshold: 10
+      httpGet:
+        path: "/login"
+        port: 8080
+      periodSeconds: 10
+      timeoutSeconds: 5
+      initialDelaySeconds: 30
+
+  secretMounts:
+    - name: github-credentials
+      secretName: github-credentials
+      mountPath: /run/secrets/github
+
   installPlugins:
     - kubernetes:latest
     - workflow-aggregator:latest
@@ -31,10 +65,6 @@ controller:
     - docker-plugin:latest
     - docker-workflow:latest
     - job-dsl:latest
-
-  serviceAccount:
-     name: jenkins-sa
-     create: false
 
   JCasC:
     enabled: true
@@ -105,8 +135,3 @@ controller:
                   }
                 }
               }
-
-  secretMounts:
-    - name: github-credentials
-      secretName: github-credentials
-      mountPath: /run/secrets/github
