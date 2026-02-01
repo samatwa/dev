@@ -1,8 +1,7 @@
 controller:
   persistence:
     enabled: true
-    storageClass: "ebs-sc"
-    size: 10Gi
+    existingClaim: jenkins
 
   admin:
     username: admin

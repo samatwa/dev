@@ -4,15 +4,11 @@ pipeline {
       yaml """
 apiVersion: v1
 kind: Pod
-metadata:
-  labels:
-    some-label: jenkins-kaniko
 spec:
   serviceAccountName: jenkins-sa
   containers:
     - name: kaniko
-      image: gcr.io/kaniko-project/executor:v1.16.0-debug
-      imagePullPolicy: Always
+      image: gcr.io/kaniko-project/executor:v1.16.0
       command:
         - sleep
       args:
@@ -28,46 +24,53 @@ spec:
   }
 
   environment {
-    ECR_REGISTRY = "864004266599.dkr.ecr.us-west-2.amazonaws.com"
-    IMAGE_NAME   = "app"
+    ECR_REGISTRY = "794038256039.dkr.ecr.eu-north-1.amazonaws.com"
+    IMAGE_NAME   = "final-project-ecr"
     IMAGE_TAG    = "v1.0.${BUILD_NUMBER}"
+
+    AWS_REGION   = "eu-north-1"
 
     COMMIT_EMAIL = "jenkins@localhost"
     COMMIT_NAME  = "jenkins"
   }
 
   stages {
-    stage('Build & Push Docker Image') {
+
+    stage('Build & Push Image (Kaniko → ECR)') {
       steps {
         container('kaniko') {
           sh '''
-            /kaniko/executor \\
-              --context `pwd` \\
-              --dockerfile `pwd`/Dockerfile \\
-              --destination=$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG \\
-              --cache=true \\
-              --insecure \\
-              --skip-tls-verify
+            /kaniko/executor \
+              --context $WORKSPACE \
+              --dockerfile $WORKSPACE/Dockerfile \
+              --destination=$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG \
+              --cache=true
           '''
         }
       }
     }
 
-    stage('Update Chart Tag in Git') {
+    stage('Update Helm values.yaml (GitOps)') {
       steps {
         container('git') {
-          withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PAT')]) {
+          withCredentials([
+            usernamePassword(
+              credentialsId: 'github-token',
+              usernameVariable: 'GIT_USERNAME',
+              passwordVariable: 'GIT_PAT'
+            )
+          ]) {
             sh '''
-              git clone https://$GIT_USERNAME:$GIT_PAT@github.com/AndriyDmitriv/goit-devops.git
-              cd goit-devops/django-chart
+              git clone https://$GIT_USERNAME:$GIT_PAT@github.com/samatwa/dev.git
+              cd dev/django-chart
 
-              sed -i "s/tag: .*/tag: $IMAGE_TAG/" values.yaml
+              sed -i "s|tag: .*|tag: $IMAGE_TAG|" values.yaml
 
               git config user.email "$COMMIT_EMAIL"
               git config user.name "$COMMIT_NAME"
 
               git add values.yaml
-              git commit -m "Update image tag to $IMAGE_TAG"
+              git commit -m "ci: update image tag to $IMAGE_TAG"
               git push origin main
             '''
           }

@@ -32,6 +32,25 @@ resource "kubernetes_service_account_v1" "jenkins_sa" {
   }
 }
 
+resource "kubernetes_persistent_volume_claim_v1" "jenkins" {
+  metadata {
+    name      = "jenkins"
+    namespace = kubernetes_namespace_v1.jenkins.metadata[0].name
+  }
+
+  spec {
+    access_modes = ["ReadWriteOnce"]
+
+    resources {
+      requests = {
+        storage = "10Gi"
+      }
+    }
+
+    storage_class_name = "ebs-sc"
+  }
+}
+
 resource "aws_iam_role" "jenkins_kaniko_role" {
   name = "${var.cluster_name}-jenkins-kaniko-role"
 
@@ -88,10 +107,11 @@ resource "helm_release" "jenkins" {
   timeout          = 900
   cleanup_on_fail  = true
   force_update     = true
-  wait             = true
+  wait             = false
 
   depends_on = [
-    kubernetes_service_account_v1.jenkins_sa
+    kubernetes_service_account_v1.jenkins_sa,
+    kubernetes_persistent_volume_claim_v1.jenkins
   ]
 
   values = [
