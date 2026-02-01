@@ -17,6 +17,10 @@ controller:
     port: 80
     targetPort: 8080
 
+  csrf:
+    defaultCrumbIssuer:
+      enabled: false
+
   resources:
     limits:
       cpu: "500m"
