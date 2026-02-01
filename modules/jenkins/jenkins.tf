@@ -82,9 +82,11 @@ resource "helm_release" "jenkins" {
   chart            = "jenkins"
   version          = "5.8.27"
   create_namespace = true
+  timeout          = 900
+  cleanup_on_fail  = true
+  force_update     = true
 
   values = [
     file("${path.module}/values.yaml")
   ]
-
 }

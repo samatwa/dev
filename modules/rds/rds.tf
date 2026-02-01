@@ -28,11 +28,6 @@ resource "aws_db_parameter_group" "standard" {
 
   # Base parameters required by the task
   parameter {
-    name  = "max_connections"
-    value = "100"
-  }
-
-  parameter {
     name  = "log_statement"
     value = "all"
   }
