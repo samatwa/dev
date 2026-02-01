@@ -41,6 +41,11 @@ module "jenkins" {
   eks_cluster_endpoint       = module.eks.cluster_endpoint
   eks_cluster_ca_certificate = module.eks.eks_cluster_ca_certificate
   eks_cluster_token          = module.eks.eks_cluster_token
+  ecr_repository_url         = module.ecr.ecr_repository_url
+  db_host                    = module.rds.db_instance_endpoint
+  db_name                    = module.rds.db_name
+  db_user                    = "postgres"
+  db_password                = "admin123456"
 }
 
 module "argo_cd" {

@@ -33,3 +33,33 @@ variable "eks_cluster_token" {
   type        = string
   sensitive   = true
 }
+variable "ecr_repository_url" {
+  description = "URL ECR репозиторію"
+  type        = string
+  default     = ""
+}
+
+variable "db_host" {
+  description = "Хост бази даних"
+  type        = string
+  default     = ""
+}
+
+variable "db_name" {
+  description = "Назва бази даних"
+  type        = string
+  default     = "myapp"
+}
+
+variable "db_user" {
+  description = "Користувач бази даних"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_password" {
+  description = "Пароль бази даних"
+  type        = string
+  sensitive   = true
+  default     = ""
+}

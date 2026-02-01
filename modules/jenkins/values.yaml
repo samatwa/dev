@@ -1,3 +1,8 @@
+persistence:
+  enabled: true
+  storageClass: "ebs-sc"
+  size: 10Gi
+
 controller:
   admin:
     username: admin
@@ -17,11 +22,6 @@ controller:
       cpu: "250m"
       memory: "512Mi"
 
-  persistentVolume:
-    enabled: true
-    storageClass: "ebs-sc"
-    size: 10Gi
-
   installPlugins:
     - kubernetes:latest
     - workflow-aggregator:latest
@@ -40,6 +40,10 @@ controller:
   JCasC:
     enabled: true
     configScripts:
+      security: |
+        security:
+          globalJobDslSecurityConfiguration:
+            useScriptSecurity: false
       credentials: |
         credentials:
           system:
@@ -48,9 +52,24 @@ controller:
                   - usernamePassword:
                       scope: GLOBAL
                       id: github-token
-                      username: ""
-                      password: ""
+                      username: "$${file:/run/secrets/github/username}"
+                      password: "$${file:/run/secrets/github/password}"
                       description: "GitHub PAT from K8s secret"
+      env: |
+        jenkins:
+          globalNodeProperties:
+            - envVars:
+                env:
+                  - key: ECR_REPOSITORY_URL
+                    value: ${ecr_url}
+                  - key: DB_HOST
+                    value: ${db_host}
+                  - key: DB_NAME
+                    value: ${db_name}
+                  - key: DB_USER
+                    value: ${db_user}
+                  - key: DB_PASSWORD
+                    value: ${db_password}
       jobs: |
         jobs:
           - script: >

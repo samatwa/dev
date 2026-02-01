@@ -95,6 +95,12 @@ resource "helm_release" "jenkins" {
   ]
 
   values = [
-    file("${path.module}/values.yaml")
+    templatefile("${path.module}/values.yaml", {
+      ecr_url     = var.ecr_repository_url
+      db_host     = var.db_host
+      db_name     = var.db_name
+      db_user     = var.db_user
+      db_password = var.db_password
+    })
   ]
 }
