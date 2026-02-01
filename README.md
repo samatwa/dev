@@ -147,7 +147,7 @@ kubectl get all -n monitoring
 ## Моніторинг
 Стек моніторингу вже налаштований для збору метрик з вузлів (Node Exporter) та контейнерів (cAdvisor). В Grafana автоматично додано Prometheus як Data Source.
 
-### Опис змінних
+## Опис змінних
 
 ---
 | Змінна | Опис | Тип | За замовчуванням |
@@ -171,7 +171,7 @@ kubectl get all -n monitoring
 | `parameters` | Мапа кастомних параметрів для Parameter Group | `map(string)` | `{}` |
 ---
 
-### Як змінити конфігурацію
+## Як змінити конфігурацію
 
 1.  **Тип бази даних**: Використовуйте `use_aurora = true` для кластера Aurora (краще підходить для високих навантажень) або `use_aurora = false` для дешевших інстансів.
 2.  **Двигун (Engine)**: Змініть `engine` (для RDS) або `engine_cluster` (для Aurora). Також не забудьте оновити `parameter_group_family_rds` або `parameter_group_family_aurora` відповідно до версії.
