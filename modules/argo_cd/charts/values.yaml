@@ -5,7 +5,7 @@ applications:
     source:
       repoURL: "https://github.com/samatwa/dev.git"
       path: "charts/django-app" 
-      targetRevision: main
+      targetRevision: final-project
       helm:
         valueFiles:
           - values.yaml
@@ -26,29 +26,12 @@ applications:
       targetRevision: 28.7.0
       helm:
         values: |
-          server:
-            global:
-              external_labels:
-                cluster: kubernetes
-          kubeStateMetrics:
-            enabled: true
+          scrapeConfigs:
+            kubernetes-nodes:
+              enabled: false
+            kubernetes-nodes-cadvisor:
+              enabled: false
           extraScrapeConfigs: |
-            - job_name: 'django-app'
-              kubernetes_sd_configs:
-                - role: pod
-              relabel_configs:
-                - action: keep
-                  regex: true
-                  source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-                - action: replace
-                  source_labels: [__meta_kubernetes_pod_label_app]
-                  target_label: service
-                - action: replace
-                  source_labels: [__meta_kubernetes_pod_label_app]
-                  target_label: app
-            - job_name: 'kube-state-metrics'
-              static_configs:
-                - targets: ['prometheus-kube-state-metrics.monitoring.svc.cluster.local:8080']
             - job_name: 'kubernetes-nodes-custom'
               scheme: https
               tls_config:
@@ -83,9 +66,6 @@ applications:
                   regex: (.+)
                   target_label: __metrics_path__
                   replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
-                - action: replace
-                  source_labels: [__meta_kubernetes_node_name]
-                  target_label: node
     destination:
       server: "https://kubernetes.default.svc"
       namespace: monitoring
