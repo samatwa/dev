@@ -33,7 +33,7 @@ applications:
           kubeStateMetrics:
             enabled: true
           extraScrapeConfigs: |
-            - job_name: 'django-app'
+            - job_name: 'django-prometheus'
               kubernetes_sd_configs:
                 - role: pod
               relabel_configs:
