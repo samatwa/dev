@@ -129,12 +129,15 @@ kubectl get all -n monitoring
 | **Prometheus**| `kubectl port-forward svc/prometheus-server 9090:80 -n monitoring` | http://localhost:9090 |
 
 ![alt text](screenshots/04.png)
+
 ![alt text](screenshots/05.png)
 
 ![alt text](screenshots/06.png)
+
 ![alt text](screenshots/07.png)
 
 ![alt text](screenshots/08.png)
+
 ![alt text](screenshots/09.png)
 
 > **Credentials**:
@@ -149,7 +152,6 @@ kubectl get all -n monitoring
   parameters = {
     max_connections = "200"
   }
-}
 ```
 
 ### Опис змінних
