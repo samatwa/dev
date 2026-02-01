@@ -131,7 +131,11 @@ kubectl get all -n monitoring
 ![alt text](screenshots/04.png)
 ![alt text](screenshots/05.png)
 
+![alt text](screenshots/06.png)
+![alt text](screenshots/07.png)
 
+![alt text](screenshots/08.png)
+![alt text](screenshots/09.png)
 
 > **Credentials**:
 > - **Argo CD**: `admin` / (пароль генерується автоматично в секретах)
