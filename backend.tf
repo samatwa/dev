@@ -2,7 +2,7 @@
 terraform {
   backend "s3" {
     bucket         = "terraform-state-bucket-kvv"
-    key            = "lesson-db-module/terraform.tfstate"
+    key            = "final-project/terraform.tfstate"
     region         = "eu-north-1"
     dynamodb_table = "terraform-locks"
     encrypt        = true
