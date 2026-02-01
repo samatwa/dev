@@ -123,10 +123,13 @@ kubectl get all -n monitoring
 
 | Інструмент | Команда для доступу | URL |
 | :--- | :--- | :--- |
-| **Jenkins** | `kubectl port-forward svc/jenkins 8080:8080 -n jenkins` | http://localhost:8080 |
+| **Jenkins** | `kubectl port-forward svc/jenkins 8080:80 -n jenkins` | http://localhost:8080 |
 | **Argo CD** | `kubectl port-forward svc/argocd-server 8081:443 -n argocd` | https://localhost:8081 |
 | **Grafana** | `kubectl port-forward svc/grafana 3000:80 -n monitoring` | http://localhost:3000 |
 | **Prometheus**| `kubectl port-forward svc/prometheus-server 9090:80 -n monitoring` | http://localhost:9090 |
+
+![alt text](screenshots/04.png)
+
 
 > **Credentials**:
 > - **Argo CD**: `admin` / (пароль генерується автоматично в секретах)
