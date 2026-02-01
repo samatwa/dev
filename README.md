@@ -86,6 +86,8 @@ Project/
     ├── app/
     ├── Dockerfile
     ├── Jenkinsfile
+    ├── manage.py
+    ├── requirements.txt      # Залежності Python
     └── docker-compose.yaml
 ```
 
