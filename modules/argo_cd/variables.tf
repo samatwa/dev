@@ -4,6 +4,21 @@ variable "name" {
   default     = "argo-cd"
 }
 
+variable "eks_cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  type        = string
+}
+
+variable "eks_cluster_ca_certificate" {
+  description = "EKS cluster CA certificate"
+  type        = string
+}
+
+variable "eks_cluster_token" {
+  description = "EKS cluster token"
+  type        = string
+}
+
 variable "namespace" {
   description = "K8s namespace для Argo CD"
   type        = string

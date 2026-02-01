@@ -44,9 +44,12 @@ module "jenkins" {
 }
 
 module "argo_cd" {
-  source       = "./modules/argo_cd"
-  namespace    = "argocd"
-  chart_version = "5.46.4"
+  source                     = "./modules/argo_cd"
+  namespace                  = "argocd"
+  chart_version              = "5.46.4"
+  eks_cluster_endpoint       = module.eks.cluster_endpoint
+  eks_cluster_ca_certificate = module.eks.eks_cluster_ca_certificate
+  eks_cluster_token          = module.eks.eks_cluster_token
 }
 
 module "rds" {
