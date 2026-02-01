@@ -115,7 +115,7 @@ controller:
                       url('https://github.com/samatwa/dev.git')
                       credentials('github-token')
                     }
-                    branches('*/main')
+                    branches('*/final_project')
                   }
                 }
                 steps {
@@ -130,7 +130,7 @@ controller:
                                   url("https://github.com/samatwa/dev.git")
                                   credentials("github-token")
                                 }
-                                branches("*/main")
+                                branches("*/final_project")
                               }
                             }
                             scriptPath("Django/Jenkinsfile")
