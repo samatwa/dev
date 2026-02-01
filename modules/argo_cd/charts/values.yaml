@@ -33,7 +33,7 @@ applications:
           kubeStateMetrics:
             enabled: true
           extraScrapeConfigs: |
-            - job_name: 'django-prometheus'
+            - job_name: 'django'
               kubernetes_sd_configs:
                 - role: pod
               relabel_configs:
@@ -41,10 +41,10 @@ applications:
                   regex: true
                   source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
                 - action: replace
-                  source_labels: [__meta_kubernetes_pod_label_app]
+                  replacement: django
                   target_label: service
                 - action: replace
-                  source_labels: [__meta_kubernetes_pod_label_app]
+                  replacement: django
                   target_label: app
                 - action: replace
                   source_labels: [__meta_kubernetes_namespace]
