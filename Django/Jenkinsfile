@@ -8,7 +8,7 @@ spec:
   serviceAccountName: jenkins-sa
   containers:
     - name: kaniko
-      image: gcr.io/kaniko-project/executor:v1.16.0
+      image: gcr.io/kaniko-project/executor:v1.16.0-debug
       command:
         - sleep
       args:
