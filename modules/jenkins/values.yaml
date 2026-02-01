@@ -1,7 +1,6 @@
 persistence:
   enabled: true
-  storageClass: "ebs-sc"
-  size: 10Gi
+  existingClaim: jenkins
 
 controller:
   admin:
@@ -44,6 +43,8 @@ controller:
         security:
           globalJobDslSecurityConfiguration:
             useScriptSecurity: false
+        jenkins:
+          crumbIssuer: null
       credentials: |
         credentials:
           system:
