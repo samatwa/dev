@@ -5,7 +5,7 @@ applications:
     source:
       repoURL: "https://github.com/samatwa/dev.git"
       path: "charts/django-app" 
-      targetRevision: main
+      targetRevision: final-project
       helm:
         valueFiles:
           - values.yaml
@@ -26,12 +26,35 @@ applications:
       targetRevision: 28.7.0
       helm:
         values: |
-          scrapeConfigs:
-            kubernetes-nodes:
-              enabled: false
-            kubernetes-nodes-cadvisor:
-              enabled: false
+          server:
+            global:
+              external_labels:
+                cluster: kubernetes
+          kubeStateMetrics:
+            enabled: true
           extraScrapeConfigs: |
+            - job_name: 'django'
+              kubernetes_sd_configs:
+                - role: pod
+              relabel_configs:
+                - action: keep
+                  regex: true
+                  source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+                - action: replace
+                  replacement: django
+                  target_label: service
+                - action: replace
+                  replacement: django
+                  target_label: app
+                - action: replace
+                  source_labels: [__meta_kubernetes_namespace]
+                  target_label: namespace
+                - action: replace
+                  source_labels: [__meta_kubernetes_pod_name]
+                  target_label: pod
+            - job_name: 'kube-state-metrics'
+              static_configs:
+                - targets: ['prometheus-kube-state-metrics.monitoring.svc.cluster.local:8080']
             - job_name: 'kubernetes-nodes-custom'
               scheme: https
               tls_config:
@@ -66,6 +89,9 @@ applications:
                   regex: (.+)
                   target_label: __metrics_path__
                   replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+                - action: replace
+                  source_labels: [__meta_kubernetes_node_name]
+                  target_label: node
     destination:
       server: "https://kubernetes.default.svc"
       namespace: monitoring

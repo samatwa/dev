@@ -62,7 +62,9 @@ spec:
           ]) {
             sh '''
               git clone https://$GIT_USERNAME:$GIT_PAT@github.com/samatwa/dev.git
-              cd dev/charts/django-app
+              cd dev
+              git checkout final-project
+              cd charts/django-app
 
               sed -i "s|tag: .*|tag: $IMAGE_TAG|" values.yaml
 
@@ -71,7 +73,7 @@ spec:
 
               git add values.yaml
               git commit -m "ci: update image tag to $IMAGE_TAG"
-              git push origin main
+              git push origin final-project
             '''
           }
         }

@@ -12,7 +12,7 @@ service:
 config:
   DJANGO_DEBUG: "False"
   DJANGO_ALLOWED_HOSTS: "*"
-  DB_ENGINE: django.db.backends.postgresql
+  DB_ENGINE: django_prometheus.db.backends.postgresql
   DB_NAME: myapp
   DB_USER: postgres
   DB_PASSWORD: admin123456
