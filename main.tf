@@ -13,6 +13,7 @@ module "vpc" {
   private_subnets    = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
   availability_zones = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
   vpc_name           = "final-project-vpc"
+  cluster_name       = "eks-cluster-demo"
 }
 
 # Підключаємо модуль ECR
