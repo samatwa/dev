@@ -16,6 +16,13 @@ spec:
         prometheus.io/port: "8000"
         prometheus.io/path: "/metrics"
     spec:
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ['python', 'manage.py', 'migrate', '--noinput']
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-django-config
       containers:
         - name: django
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

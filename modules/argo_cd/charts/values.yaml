@@ -30,6 +30,35 @@ applications:
             global:
               external_labels:
                 cluster: kubernetes
+            persistentVolume:
+              enabled: true
+              size: 10Gi
+          alertmanager:
+            enabled: true
+            persistentVolume:
+              enabled: true
+              size: 2Gi
+          serverFiles:
+            alerting_rules.yml:
+              groups:
+                - name: django-alerts
+                  rules:
+                    - alert: DjangoHighCpuUsage
+                      expr: sum(rate(container_cpu_usage_seconds_total{container="django"}[5m])) by (pod) > 0.4
+                      for: 2m
+                      labels:
+                        severity: critical
+                      annotations:
+                        summary: "High CPU usage on pod {{ $labels.pod }}"
+                        description: "Django pod {{ $labels.pod }} is using more than 40% CPU for 2 minutes."
+                    - alert: DjangoDown
+                      expr: up{job="django"} == 0
+                      for: 1m
+                      labels:
+                        severity: critical
+                      annotations:
+                        summary: "Django service is down"
+                        description: "All Django pods are down."
           kubeStateMetrics:
             enabled: true
           extraScrapeConfigs: |

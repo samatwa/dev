@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-django-policy
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Release.Name }}-django
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic on port 8000 (app port)
+    - from:
+        - podSelector: {} # Allow from any pod in the same namespace (including ingress controllers if they are here)
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring # Allow Prometheus to scrape
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # Allow traffic to DNS
+    - to:
+        - ports:
+            - protocol: UDP
+              port: 53
+            - protocol: TCP
+              port: 53
+    # Allow traffic to RDS (internal VPC)
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/16
+      ports:
+        - protocol: TCP
+          port: 5432

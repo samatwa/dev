@@ -7,8 +7,20 @@ kind: Pod
 spec:
   serviceAccountName: jenkins-sa
   containers:
+    - name: python
+      image: python:3.11-slim
+      command:
+        - sleep
+      args:
+        - 99d
     - name: kaniko
       image: gcr.io/kaniko-project/executor:v1.16.0-debug
+      command:
+        - sleep
+      args:
+        - 99d
+    - name: trivy
+      image: aquasec/trivy:latest
       command:
         - sleep
       args:
@@ -36,6 +48,30 @@ spec:
 
   stages {
 
+    stage('Unit Tests') {
+      steps {
+        container('python') {
+          sh '''
+            cd Django
+            pip install -r requirements.txt
+            python manage.py test
+          '''
+        }
+      }
+    }
+
+    stage('Security Scan (Code & Deps)') {
+      steps {
+        container('python') {
+          sh '''
+            pip install bandit safety
+            bandit -r Django/
+            safety check -r Django/requirements.txt || true
+          '''
+        }
+      }
+    }
+
     stage('Build & Push Image (Kaniko → ECR)') {
       steps {
         container('kaniko') {
@@ -46,6 +82,14 @@ spec:
               --destination=$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG \
               --cache=true
           '''
+        }
+      }
+    }
+
+    stage('Security Scan (Image)') {
+      steps {
+        container('trivy') {
+          sh "trivy image --severity HIGH,CRITICAL $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
         }
       }
     }
