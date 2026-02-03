@@ -22,3 +22,9 @@ variable "vpc_name" {
   description = "Ім'я VPC"
   type        = string
 }
+
+variable "cluster_name" {
+  description = "Назва EKS кластера для тегування підмереж"
+  type        = string
+  default     = ""
+}

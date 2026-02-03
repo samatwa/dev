@@ -107,7 +107,7 @@ resource "helm_release" "jenkins" {
   timeout          = 900
   cleanup_on_fail  = true
   force_update     = true
-  wait             = false
+  wait             = true
 
   depends_on = [
     kubernetes_service_account_v1.jenkins_sa,
